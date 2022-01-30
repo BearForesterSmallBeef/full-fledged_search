@@ -5,36 +5,19 @@ import requests
 from PIL import Image
 import pprint
 
-from GetDelta import get_delta
+from GetDelta import get_param
 
 
 toponym_to_find = " ".join(sys.argv[1:])
-# toponym_to_find = " ".join(["Красная", "площадь"])
 
-geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+params = get_param(toponym_to_find)
 
-geocoder_params = {
-    "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-    "geocode": toponym_to_find,
-    "format": "json"}
+if params == 0:
+    print("Ничего не найдено")
+    sys.exit()
+else:
+    toponym_longitude, toponym_lattitude, delta = params
 
-response = requests.get(geocoder_api_server, params=geocoder_params)
-
-if not response:
-    pass
-
-json_response = response.json()
-pprint.pprint(json_response)
-toponym = json_response["response"]["GeoObjectCollection"][
-    "featureMember"][0]["GeoObject"]
-
-toponym_coodrinates = toponym["Point"]["pos"]
-
-toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
-
-delta = get_delta(toponym)
-
-print(delta)
 map_params = {
     "ll": ",".join([toponym_longitude, toponym_lattitude]),
     "spn": delta,
